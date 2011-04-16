@@ -31,6 +31,7 @@ public class Main extends PApplet{
 	boolean left;
 	boolean right;
 	boolean paused;
+	static boolean mouseControl;
 	
 	
 	public void setup()
@@ -45,6 +46,7 @@ public class Main extends PApplet{
 		visualScore = 0;
 		size(screenWidth, screenHeight);
 		smooth();
+		mouseControl = false;
 		frameRate(60);
 		lastUpdateTime = 0;
 		asteroids = new ArrayList();
@@ -73,11 +75,10 @@ public class Main extends PApplet{
 		
 		
 		
-		
 		if (left)
-			me.rotation-=2;
+			me.tempRotation-=2;
 		if (right)
-			me.rotation+=2;
+			me.tempRotation+=2;
 		
 		me.update(delta);	
 		
@@ -174,14 +175,23 @@ public class Main extends PApplet{
 	
 	public void keyPressed()
 	{
-		
-		if (key == 'a')
+		System.out.println(keyCode);
+		if (keyCode == 37)
 		{
 			left = true;
 		}
-		if (key == 'd')
+		if (keyCode == 39)
 		{
 			right = true;
+		}
+		if (keyCode == 32)
+		{
+			if (!paused)
+			{
+				float startx = me.position.x + (float)(Math.cos(Math.toRadians(me.rotation)) * 30);
+				float starty = me.position.y + (float)(Math.sin(Math.toRadians(me.rotation)) * 30);
+				bullets.add(new Bullets(this, (int)startx, (int)starty, (int)me.position.x+(int)(Math.cos(Math.toRadians(me.rotation))*50), (int)me.position.y+(int)(Math.sin(Math.toRadians(me.rotation))*50), 5));
+			}
 		}
 		if (key == 't')
 		{
@@ -216,11 +226,11 @@ public class Main extends PApplet{
 	
 	public void keyReleased()
 	{
-		if (key == 'a')
+		if (keyCode == 37)
 		{
 			left = false;
 		}
-		if (key == 'd')
+		if (keyCode == 39)
 		{
 			right = false;
 		}
