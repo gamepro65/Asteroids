@@ -31,4 +31,11 @@ If in mouse mode\
 \
 The ship auto moves to your mouse location just put the mouse on screen\
 where you want the ship to move. Left mouse click will fire your weapon \
-straight ahead of the front of the ship.}
+straight ahead of the front of the ship.\
+\
+\
+\
+PS\
+I included the firing by mouse towards direction of the mouse however\
+it is not enabled by default. I put the code to make it fire in that direction however\
+it is located inside of the Main class and is commented better there for how to make the switch.}
