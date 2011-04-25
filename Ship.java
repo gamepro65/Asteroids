@@ -1,11 +1,18 @@
 package asteroids;
 
+/**
+Name: Chris Drury
+Class: CSc 2310: Introduction to programming
+Filename: Ship.java
+Date written: April, 19, 2011
+
+Description:
+This class controls how a ship acts. 
+*/
+
 import java.awt.Color;
-import java.awt.Polygon;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
-import java.util.Random;
-
 import javax.vecmath.Vector2f;
 import processing.core.PApplet;
 

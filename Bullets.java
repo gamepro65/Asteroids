@@ -1,5 +1,15 @@
 package asteroids;
 
+/**
+Name: Chris Drury
+Class: CSc 2310: Introduction to programming
+Filename: Bullets.java
+Date written: April, 19, 2011
+
+Description:
+This class controls how a bullet should act. 
+*/
+
 import processing.core.PApplet;
 
 public class Bullets {

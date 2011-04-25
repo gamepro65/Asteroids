@@ -1,12 +1,19 @@
 package asteroids;
 
+/**
+Name: Chris Drury
+Class: CSc 2310: Introduction to programming
+Filename: Main.java
+Date written: April, 19, 2011
+
+Description:
+This class runs the game logic and sets up the screen. 
+*/
+
 import java.awt.Color;
 import java.awt.Rectangle;
-import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Random;
-
-import javax.swing.text.Position;
 import javax.vecmath.Vector2f;
 import processing.core.*;
 

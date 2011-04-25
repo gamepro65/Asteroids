@@ -1,11 +1,22 @@
 package asteroids;
 
+/**
+Name: Chris Drury
+Class: CSc 2310: Introduction to programming
+Filename: AbstractEntity.java
+Date written: April, 19, 2011
+
+Description:
+This class is the parent that all my entities are 
+based off of. It controls our base polygon for drawing
+and some basic general update information about it.
+*/
+
 import java.awt.Color;
 import java.awt.Polygon;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Random;
-
 import javax.vecmath.Vector2f;
 import processing.core.PApplet;
 

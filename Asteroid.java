@@ -1,11 +1,16 @@
 package asteroids;
 
-import java.awt.Color;
-import java.awt.Polygon;
-import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
-import java.util.Random;
+/**
+Name: Chris Drury
+Class: CSc 2310: Introduction to programming
+Filename: Asteroid.java
+Date written: April, 19, 2011
 
+Description:
+This class controls how our asteroids work. 
+*/
+
+import java.util.Random;
 import javax.vecmath.Vector2f;
 import processing.core.PApplet;
 
