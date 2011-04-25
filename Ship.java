@@ -85,12 +85,18 @@ public class Ship extends AbstractEntity{
 		//get our ships bounds
 		Rectangle2D tempRect = verticies.getBounds2D();
 		//If we are not inside of the ship bounds with our mouse
-		//Then our ship should move forward.
-		if (!tempRect.contains(parent.mouseX, parent.mouseY))
+		//Then our ship should move forward. Unless its
+		//in non mouse mode in which then we need it to still
+		//move.
+		if (!tempRect.contains(parent.mouseX, parent.mouseY) || (!Main.mouseControl))
 		{
 			//if we are using mouse control
 			if (Main.mouseControl)
 			{
+				//Increase speed because we are not at the
+				//end point with our mouse
+				if (speed < maxSpeed)
+					speed += 5;
 				//figure out the rotation to the mouse position
 				//from the atan2 function with its xdis and ydis from
 				//both points.

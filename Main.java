@@ -80,10 +80,10 @@ public class Main extends PApplet{
 		mouseControl = false;
 		//Set framerate we want processing to try
 		//and achieve.
-		frameRate(60);
+		frameRate(30);
 		lastUpdateTime = 0;
 		//difficulty multiplyer starts at 1;
-		difficulty = 1;
+		difficulty = 1.3f;
 		//initialize our array lists
 		asteroids = new ArrayList();
 		bullets = new ArrayList();
@@ -150,8 +150,8 @@ public class Main extends PApplet{
 			//if we have no asteroids on the screen
 			if (asteroids.size() <= 0)
 			{
-				//create 3 new big ones
-				for (int x = 0; x < 3; x++)
+				//create new big asteroids based on the difficulty
+				for (int x = 0; x < difficulty*2; x++)
 					asteroids.add(new Asteroid(this, 
 							new Vector2f((float)Math.random()*screenWidth,
 									(float)Math.random()*screenHeight), 150));	

@@ -56,6 +56,8 @@ public class Bullets {
 		parent.rectMode(parent.CENTER);
 		//draw rect
 		parent.rect((float)bulletx, (float)bullety, 3, 3);
+		//reset rect mode to default
+		parent.rectMode(0);
 		
 	}
 
