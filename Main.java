@@ -14,6 +14,7 @@ public class Main extends PApplet{
 	ArrayList bullets;
 	Ship me;
 	int health;
+	static public float difficulty;
 	static public boolean useColor;
 	
 	Color backgroundColor;
@@ -36,7 +37,7 @@ public class Main extends PApplet{
 	
 	public void setup()
 	{
-		screenWidth = 1300;
+		screenWidth = 800;
 		screenHeight = 600;
 		Random ran = new Random();
 		backgroundColor = new Color(ran.nextFloat(),ran.nextFloat(),ran.nextFloat(),1);
@@ -47,8 +48,9 @@ public class Main extends PApplet{
 		size(screenWidth, screenHeight);
 		smooth();
 		mouseControl = false;
-		frameRate(60);
+		frameRate(30);
 		lastUpdateTime = 0;
+		difficulty = 1;
 		asteroids = new ArrayList();
 		bullets = new ArrayList();
 		delta = .017;
@@ -59,9 +61,9 @@ public class Main extends PApplet{
 		left = false;
 		paused = true;
 		right = false;
-		for (int x = 0; x < 7; x++)
+		for (int x = 0; x < 1; x++)
 		{
-			asteroids.add(new Asteroid(this, new Vector2f((float)Math.random()*screenWidth,(float)Math.random()*screenHeight), (int)(Math.random()*80+30)));
+			asteroids.add(new Asteroid(this, new Vector2f((float)Math.random()*screenWidth,(float)Math.random()*screenHeight), 150));
 		}
 		me = new Ship(this, new Vector2f(screenWidth/2, screenHeight/2));
 		
@@ -70,16 +72,25 @@ public class Main extends PApplet{
 	
 
 	public void update()
-	{
-		
-		
-		
-		
-		if (left)
-			me.tempRotation-=2;
-		if (right)
-			me.tempRotation+=2;
-		
+	{		
+		if (!mouseControl)
+		{
+			if (left)
+				me.tempRotation-=2;
+			if (right)
+				me.tempRotation+=2;
+			
+			if (up)
+			{
+				if (me.speed < me.maxSpeed)
+					me.speed += 5;
+			}
+			else
+			{
+				me.speed /= 1.05;
+			}
+			
+		}
 		me.update(delta);	
 		
 		if (visualScore != score)
@@ -90,9 +101,12 @@ public class Main extends PApplet{
 				
 		if (!paused)
 		{
-			if (asteroids.size() < 7)
+			if (asteroids.size() <= 0)
 			{
-					asteroids.add(new Asteroid(this, new Vector2f((float)Math.random()*screenWidth,(float)Math.random()*screenHeight), (int)(Math.random()*80+30)));	
+				for (int x = 0; x < 5; x++)
+					asteroids.add(new Asteroid(this, new Vector2f((float)Math.random()*screenWidth,(float)Math.random()*screenHeight), 150));	
+
+				difficulty += .2;
 			}
 		}
 				
@@ -130,9 +144,15 @@ public class Main extends PApplet{
 				{
 					tempAsteroid.health--;
 					discardedBullets.add(temp);
+					
+					tempAsteroid.driftSpeed.x += temp.speedx/20;
+					tempAsteroid.driftSpeed.y += temp.speedy/20;
+					
+					
 					if (tempAsteroid.health <= 0)
 					{
-						discardedAsteroids.add(tempAsteroid);				
+						discardedAsteroids.add(tempAsteroid);		
+						
 					}
 				}
 			}
@@ -142,9 +162,9 @@ public class Main extends PApplet{
 		{
 			Asteroid tempAsteroid = (Asteroid)discardedAsteroids.get(x);
 			score += tempAsteroid.size;
-			if (tempAsteroid.size > 30)
+			if (tempAsteroid.size > 50)
 			{
-				for (int i = 0; i < tempAsteroid.size/10; i++)
+				for (int i = 0; i < 3; i++)
 				{
 					asteroids.add(new Asteroid(this, new Vector2f(tempAsteroid.position.x, tempAsteroid.position.y), tempAsteroid.size/2));
 				}
@@ -175,7 +195,6 @@ public class Main extends PApplet{
 	
 	public void keyPressed()
 	{
-		System.out.println(keyCode);
 		if (keyCode == 37)
 		{
 			left = true;
@@ -186,12 +205,16 @@ public class Main extends PApplet{
 		}
 		if (keyCode == 32)
 		{
-			if (!paused)
+			if (!paused && bullets.size() < 3)
 			{
 				float startx = me.position.x + (float)(Math.cos(Math.toRadians(me.rotation)) * 30);
 				float starty = me.position.y + (float)(Math.sin(Math.toRadians(me.rotation)) * 30);
 				bullets.add(new Bullets(this, (int)startx, (int)starty, (int)me.position.x+(int)(Math.cos(Math.toRadians(me.rotation))*50), (int)me.position.y+(int)(Math.sin(Math.toRadians(me.rotation))*50), 5));
 			}
+		}
+		if (keyCode == 38)
+		{
+			up = true;
 		}
 		if (key == 't')
 		{
@@ -209,9 +232,9 @@ public class Main extends PApplet{
 				if (health <= 0)
 				{
 					asteroids.clear();
-					for (int x = 0; x < 7; x++)
+					for (int x = 0; x < 1; x++)
 					{
-						asteroids.add(new Asteroid(this, new Vector2f((float)Math.random()*screenWidth,(float)Math.random()*screenHeight), (int)(Math.random()*30+30)));
+						asteroids.add(new Asteroid(this, new Vector2f((float)Math.random()*screenWidth,(float)Math.random()*screenHeight), 75/2));
 					}
 					score = 0;
 					Random ran = new Random();
@@ -233,6 +256,10 @@ public class Main extends PApplet{
 		if (keyCode == 39)
 		{
 			right = false;
+		}
+		if (keyCode == 38)
+		{
+			up = false;
 		}
 	}
 	

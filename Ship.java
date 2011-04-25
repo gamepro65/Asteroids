@@ -16,6 +16,7 @@ public class Ship extends AbstractEntity{
 	public int size;	
 	public int health;
 	public float speed;
+	public float maxSpeed;
 	public double tempRotation;
 	public ArrayList smokeVectors;
 	public ArrayList smokeTimers;
@@ -29,7 +30,8 @@ public class Ship extends AbstractEntity{
 		//We know our ship is going to have 4 sides
 		numberOfSides = 4;	
 		//set our traveling speed
-		speed = 120;
+		speed = 0;
+		maxSpeed = 120;
 		
 		//initialize our smoke faux particle emitter.
 		smokeVectors = new ArrayList();
@@ -98,6 +100,8 @@ public class Ship extends AbstractEntity{
 				{
 					tempRotation = Math.toDegrees(angleAradians);
 				}
+				
+				tempRotation = Math.toDegrees(angleAradians);
 			
 			}
 			
@@ -119,18 +123,18 @@ public class Ship extends AbstractEntity{
 			}
 			
 			
-			//Rotate our ship with a speed of about 80 pixels/s
+			//Rotate our ship with a speed of about 60 pixels/s
 			//We multiply this by aDelta to make it so our ship
 			//will move the same distance reguardless of how long
 			//between frame redraws based on the scale of 1/s that has passed
 			//this is how we deduce speed is in pixels/s
 			if ((int)rotation < (int)tempRotation)  
 			{
-				rotation+=1.2*60*aDelta;
+				rotation+=60*aDelta;
 			}
 			else
 			{
-				rotation-=1.2*60*aDelta;
+				rotation-=60*aDelta;
 			}
 			
 			//move distance by speed at our current rotational angle			

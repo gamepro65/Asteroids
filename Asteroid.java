@@ -13,7 +13,7 @@ import processing.core.PApplet;
 
 public class Asteroid extends AbstractEntity{
 
-	private Vector2f driftSpeed;
+	public Vector2f driftSpeed;
 	int size;
 	int health;
 	
@@ -23,8 +23,8 @@ public class Asteroid extends AbstractEntity{
 		Random ran = new Random();
 		size = aSize;
 		verticiesSizes = new ArrayList();		
-		numberOfSides = (int)(ran.nextDouble() * 10)+4;
-		health = size/10;
+		numberOfSides = (int)(ran.nextDouble() * 10)+5;
+		health = 3;
 		double randomAngle = ran.nextDouble()*360;
 		driftSpeed = new Vector2f((float)(Math.cos(Math.toRadians(randomAngle))*ran.nextDouble()*180), (float)(Math.sin(Math.toRadians(randomAngle))*ran.nextDouble()*180));
 		for (int x = 0; x < 360-(360/(numberOfSides)); x+= (360/(numberOfSides)))
@@ -39,8 +39,8 @@ public class Asteroid extends AbstractEntity{
 	public void update(double aDelta)
 	{
 		super.update(aDelta);
-		position.x += (float)(driftSpeed.x * aDelta);
-		position.y += (float)(driftSpeed.y * aDelta);
+		position.x += (float)(driftSpeed.x * Main.difficulty * aDelta);
+		position.y += (float)(driftSpeed.y * Main.difficulty * aDelta);
 	}
 		
 	public void draw()
