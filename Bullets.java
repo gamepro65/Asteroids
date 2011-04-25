@@ -15,6 +15,8 @@ public class Bullets {
 		bulletx = x;
 		bullety = y;
 		//finds missing sides and angles
+		//This will auto find the direction the bullet
+		//needs to travel.
 		double xdis = crosshairx - x;
 		double ydis = crosshairy - y;
 		double angleAradians = Math.atan2(ydis,xdis);

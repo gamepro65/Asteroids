@@ -101,7 +101,7 @@ public class Ship extends AbstractEntity{
 					tempRotation = Math.toDegrees(angleAradians);
 				}
 				
-				tempRotation = Math.toDegrees(angleAradians);
+				//tempRotation = Math.toDegrees(angleAradians);
 			
 			}
 			
