@@ -34,6 +34,8 @@ public class Main extends PApplet{
 	//Current background color
 	Color backgroundColor;
 	
+	ArrayList stars;
+	
 	//Hold our information for figuring
 	//out our current fps. this includes a
 	//Timer so we just update the info to our user
@@ -60,7 +62,7 @@ public class Main extends PApplet{
 	//Setup our game.
 	public void setup()
 	{
-		
+		stars = new ArrayList();
 		//Screen Width and Height
 		screenWidth = 800;
 		screenHeight = 600;
@@ -80,7 +82,7 @@ public class Main extends PApplet{
 		mouseControl = false;
 		//Set framerate we want processing to try
 		//and achieve.
-		frameRate(30);
+		frameRate(60);
 		lastUpdateTime = 0;
 		//difficulty multiplyer starts at 1;
 		difficulty = 1.3f;
@@ -103,6 +105,24 @@ public class Main extends PApplet{
 
 	public void update()
 	{		
+		
+		if (stars.size() < 100)
+		{
+			Particle p = new Particle(this, new Vector2f((float)(Math.random() * screenWidth), (float)(Math.random() * screenHeight)), (float)(Math.random() * 20), new Color(1f, 1f, 1f));
+			stars.add(p);
+		}
+		ArrayList discardedStars = new ArrayList();
+		for (int x = 0; x < stars.size(); x++)
+		{
+			Particle p = (Particle)stars.get(x);
+			p.update(delta);
+			if (p.delete)
+			{
+				discardedStars.add(p);
+			}
+		}
+		stars.removeAll(discardedStars);
+		
 		//If we are not using mouse controls
 		if (!mouseControl)
 		{
@@ -111,16 +131,14 @@ public class Main extends PApplet{
 			//Well let our ship handle how fast
 			//its allowed to actually turn.
 			if (left)
-				me.tempRotation-=2;
+				me.rotate((float)(-180 * delta));	
 			if (right)
-				me.tempRotation+=2;
+				me.rotate((float)(180 * delta));	
 			//if up then we are accelerating
 			if (up)
 			{
-				//if were less than max speed
-				//then we can increase speed
-				if (me.speed < me.maxSpeed)
-					me.speed += 5;
+				me.speed = 5;
+				me.accelerate();
 			}
 			else
 			{
@@ -132,7 +150,7 @@ public class Main extends PApplet{
 			}
 			
 		}
-		//upadte my ship
+		//update my ship
 		me.update(delta);	
 		
 		//If our visual score is not our real score then add
@@ -159,41 +177,14 @@ public class Main extends PApplet{
 				difficulty += .2;
 			}
 		}
+		
+		System.out.println(asteroids.size());
 		//Create temp arrays to hold our deleted objects
 		ArrayList discardedAsteroids = new ArrayList();
 		ArrayList discardedBullets = new ArrayList();
 		
-		//Loop through the asteroids
-		for (int x = 0; x < asteroids.size(); x++)
-		{
-			//Assign our temp asteroid to an object
-			//Then update that asteroid
-			Asteroid tempAsteroid = (Asteroid)asteroids.get(x);
-			tempAsteroid.update(delta);
-			
-			//If the asteroid is touching my ship
-			if (tempAsteroid.verticies.intersects(me.verticies.getBounds2D()))
-			{
-				//Decrease health
-				health -= 10;
-				//Kill the asteroid, its taken enough damage
-				//So add it to the asteroid discarded array
-				discardedAsteroids.add(tempAsteroid);
-			}
-		}
-		//Loop through the discarded asteroids
-		for (int x = 0; x < discardedAsteroids.size(); x++)
-		{
-			Asteroid tempAsteroid = (Asteroid)discardedAsteroids.get(x);
-			//completly remove the asteroid from the list
-			//We could make it break down further but this
-			//way we know our user wont be hit multiple times
-			//for one measily mistake.
-			asteroids.remove(tempAsteroid);	
-		}
-		//reinit the discarded asteroids array.
-		discardedAsteroids = new ArrayList();
 		
+				
 		//Loop through the bullets
 		for (int x = 0; x < bullets.size(); x++)
 		{
@@ -225,37 +216,78 @@ public class Main extends PApplet{
 					
 					//If the asteroid died of natural death
 					//by bullets add it to the discard array.
-					if (tempAsteroid.health <= 0)
+					if (tempAsteroid.health <= 0 && !tempAsteroid.destroied)
 					{
-						discardedAsteroids.add(tempAsteroid);		
-						
+						//discardedAsteroids.add(tempAsteroid);		
+						tempAsteroid.destroyObject();
+						//increase our score based on the asteroids size.
+						score += tempAsteroid.size;
+						//if the size is > 50 we know its not at its 3rd stage yet
+						if (tempAsteroid.size > 50)
+						{
+							//Create 3 new asteroids in this ones position
+							//We make it at half the size this will keep up
+							//with our asteroid level. we know stage 1 is 150
+							//stage 2 is 75 stage 3 is 75/2 which is < than 50
+							for (int i = 0; i < 3; i++)
+							{
+								asteroids.add(new Asteroid(this, new Vector2f(tempAsteroid.position.x, tempAsteroid.position.y), tempAsteroid.size/2));
+							}
+						}
 					}
 				}
 			}
 		}
 		
-		//loop through our discarded asteroids
-		for (int x = 0; x < discardedAsteroids.size(); x++)
+		if (me.destroied && me.verticieParticles.size() == 0)
 		{
-			Asteroid tempAsteroid = (Asteroid)discardedAsteroids.get(x);
-			//increase our score based on the asteroids size.
-			score += tempAsteroid.size;
-			//if the size is > 50 we know its not at its 3rd stage yet
-			if (tempAsteroid.size > 50)
+			me.position = new Vector2f(screenWidth/2, screenHeight/2);
+			me.spawningTimer = 10;
+			me.speedVector = new Vector2f(0,0);
+			me.destroied = false;
+		}
+		
+		//Loop through the asteroids
+		for (int x = 0; x < asteroids.size(); x++)
+		{
+			//Assign our temp asteroid to an object
+			//Then update that asteroid
+			Asteroid tempAsteroid = (Asteroid)asteroids.get(x);
+			tempAsteroid.update(delta);
+			if (!tempAsteroid.destroied)
 			{
-				//Create 3 new asteroids in this ones position
-				//We make it at half the size this will keep up
-				//with our asteroid level. we know stage 1 is 150
-				//stage 2 is 75 stage 3 is 75/2 which is < than 50
-				for (int i = 0; i < 3; i++)
+				//If the asteroid is touching my ship
+				if (tempAsteroid.verticies.intersects(me.verticies.getBounds2D()) && me.spawningTimer <= 0 && me.verticieParticles.size() == 0)
 				{
-					asteroids.add(new Asteroid(this, new Vector2f(tempAsteroid.position.x, tempAsteroid.position.y), tempAsteroid.size/2));
+					//Decrease health
+					health -= 25;
+					tempAsteroid.health = 0;
+					me.destroyObject();
+					//if the size is > 50 we know its not at its 3rd stage yet
+					if (tempAsteroid.size > 50)
+					{
+						//Create 3 new asteroids in this ones position
+						//We make it at half the size this will keep up
+						//with our asteroid level. we know stage 1 is 150
+						//stage 2 is 75 stage 3 is 75/2 which is < than 50
+						for (int i = 0; i < 3; i++)
+						{
+							asteroids.add(new Asteroid(this, new Vector2f(tempAsteroid.position.x, tempAsteroid.position.y), tempAsteroid.size/2));
+						}
+					}
+					discardedAsteroids.add(tempAsteroid);
 				}
 			}
-			//remove the discarded asteroid from the list
-			asteroids.remove(tempAsteroid);
+			else if (tempAsteroid.destroied && tempAsteroid.verticieParticles.size() == 0)
+			{
+				discardedAsteroids.add(tempAsteroid);
+			}
 			
 		}
+		
+		asteroids.removeAll(discardedAsteroids);		
+		//loop through our discarded asteroids
+		
 		//remove all bullets
 		for (int x = 0; x < discardedBullets.size(); x++)
 		{
@@ -389,10 +421,11 @@ public class Main extends PApplet{
 					//create 3 asteroids
 					for (int x = 0; x < 3; x++)
 					{
-						asteroids.add(new Asteroid(this, new Vector2f((float)Math.random()*screenWidth,(float)Math.random()*screenHeight), 75/2));
+						asteroids.add(new Asteroid(this, new Vector2f((float)Math.random()*screenWidth,(float)Math.random()*screenHeight), 150));
 					}
 					//reset score
 					score = 0;
+					visualScore = 0;
 					//reset random background color
 					Random ran = new Random();
 					backgroundColor = new Color(ran.nextFloat(),ran.nextFloat(),ran.nextFloat(),1);
@@ -458,6 +491,13 @@ public class Main extends PApplet{
 			//Gimmie grey
 			background(204);
 		}
+		noStroke();
+		for (int x = 0; x < stars.size(); x++)
+		{
+			Particle p = (Particle)stars.get(x);
+			p.draw();
+		}
+		stroke(0);
 		
 		
 		//set text to white
