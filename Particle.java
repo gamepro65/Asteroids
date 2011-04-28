@@ -1,13 +1,24 @@
 package asteroids;
+/**
+Name: Chris Drury
+Class: CSc 2310: Introduction to programming
+Filename: Particle.java
+Date written: April, 26, 2011
+
+Description:
+This class holds a particle. This can either be a
+square or a line, both types are defined however
+many more could be made from this base class.
+*/
+
 
 import java.awt.Color;
-
 import javax.vecmath.Vector2f;
-
 import processing.core.PApplet;
 
 public class Particle {
 	
+	//Particle variables
 	Vector2f position;
 	float life;
 	float maxLife;
@@ -19,46 +30,63 @@ public class Particle {
 	float rotation;
 	float rotationSpeed;
 	float direction;
+	float size;
+	float speed;
 	
-	public Particle(PApplet aParent, Vector2f aPosition, float aLife, Color aColor)
+	//Default constructor for making a square shaped particle
+	public Particle(PApplet aParent, Vector2f aPosition, float aLife, Color aColor, float aSize)
 	{
+		//Basic setup
 		position = aPosition;
 		life = aLife;
 		maxLife = aLife;
 		delete = false;
 		color = aColor;
+		size = aSize;
 		parent = aParent;
+		//tell the class we are not a line
 		line = false;
 	}
-	public Particle(PApplet aParent, Vector2f aCenterPoint, float aRadius, float aRotation, float aRotationSpeed, float aLife, float aDirection)
+	
+	//Default constructor for making a line
+	public Particle(PApplet aParent, Vector2f aCenterPoint, float aRadius, float aRotation, float aRotationSpeed, float aLife, float aDirection, float aSpeed)
 	{
+		
 		position = aCenterPoint;
 		life = aLife;
 		maxLife = aLife;
 		delete = false;
 		parent = aParent;
-		line = true;
 		radius = aRadius;
 		rotation = aRotation;
-		rotationSpeed = aRotationSpeed * 10;
+		rotationSpeed = aRotationSpeed;
 		direction = aDirection;
+		speed = aSpeed;
+		//tell the class that we have a line
+		line = true;
 	}
 	
 	public void update(double aDelta)
 	{
+		//subtract time alive from current life
 		life -= aDelta;
 		if (life <= 0)
 		{
+			//if we have no life then
+			//set our delete flag
 			delete = true;
 		}
 		
 		
-		
+		//if we are a line particle
 		if (line)
 		{
+			//rotate the particle based on rotate speed
 			rotation += rotationSpeed * aDelta;
-			position = new Vector2f(position.x + (float)((Math.cos(Math.toRadians(direction)) * 60) * aDelta), 
-									position.y + (float)((Math.sin(Math.toRadians(direction)) * 60) * aDelta));
+			//update its position with its told direction with a speed
+			//of 60 pixel/s
+			position = new Vector2f(position.x + (float)((Math.cos(Math.toRadians(direction)) * speed) * aDelta), 
+									position.y + (float)((Math.sin(Math.toRadians(direction)) * speed) * aDelta));
 		}
 	}
 	
@@ -74,13 +102,19 @@ public class Particle {
 		{
 			parent.fill(66);
 		}
+		//if we are not a line then render our rectangle
 		if (!line)
-			parent.rect(position.x, position.y, 5, 5);
+			parent.rect(position.x, position.y, size, size);
 		
+		//if we are a line then lets do some math.
 		if (line)
 		{
+			//We create new points from the center point of our line to our radius
+			//at both the current angle and 180 degrees in the other direction
+			//this creates out 2 points to make our line
 			Vector2f point1 = new Vector2f((float)(position.x + (Math.cos(Math.toRadians(rotation)) * radius)), (float)(position.y + (Math.sin(Math.toRadians(rotation)) * radius)));
 			Vector2f point2 = new Vector2f((float)(position.x + (Math.cos(Math.toRadians(rotation+180)) * radius)), (float)(position.y + (Math.sin(Math.toRadians(rotation+180)) * radius)));
+			//tell processing to render our line
 			parent.line(point1.x, point1.y, point2.x, point2.y);
 		}
 		

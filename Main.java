@@ -11,7 +11,9 @@ This class runs the game logic and sets up the screen.
 */
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Rectangle;
+import java.awt.Toolkit;
 import java.util.ArrayList;
 import java.util.Random;
 import javax.vecmath.Vector2f;
@@ -64,8 +66,9 @@ public class Main extends PApplet{
 	{
 		stars = new ArrayList();
 		//Screen Width and Height
-		screenWidth = 800;
-		screenHeight = 600;
+		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+		screenWidth = (int)(dim.width/2);
+		screenHeight = (int)(dim.height/2);
 		//Psuedo random number generator
 		Random ran = new Random();
 		//make a new random backgroundColor
@@ -105,13 +108,19 @@ public class Main extends PApplet{
 
 	public void update()
 	{		
-		
+		//lets make stars in our sky
 		if (stars.size() < 100)
 		{
-			Particle p = new Particle(this, new Vector2f((float)(Math.random() * screenWidth), (float)(Math.random() * screenHeight)), (float)(Math.random() * 20), new Color(1f, 1f, 1f));
+			//add a new particle to our world that is small enough
+			//look like a star
+			Particle p = new Particle(this, new Vector2f((float)(Math.random() * screenWidth), 
+														(float)(Math.random() * screenHeight)), 
+														(float)(Math.random() * 20), 
+														new Color(1f, 1f, 1f), 2);
 			stars.add(p);
 		}
 		ArrayList discardedStars = new ArrayList();
+		//Update our stars and delete dead ones
 		for (int x = 0; x < stars.size(); x++)
 		{
 			Particle p = (Particle)stars.get(x);
@@ -127,26 +136,19 @@ public class Main extends PApplet{
 		if (!mouseControl)
 		{
 			//if we have left or right true,
-			//increase our temp rotation.
+			//increase our rotation.
 			//Well let our ship handle how fast
 			//its allowed to actually turn.
 			if (left)
 				me.rotate((float)(-180 * delta));	
 			if (right)
-				me.rotate((float)(180 * delta));	
+				me.rotate((float)(180 * delta));
+			
 			//if up then we are accelerating
 			if (up)
 			{
 				me.speed = 5;
 				me.accelerate();
-			}
-			else
-			{
-				//if we are not accelerating
-				//divide our speed to create
-				//a slowly drifting slowdown
-				//to a stop.
-				me.speed /= 1.05;
 			}
 			
 		}
@@ -167,18 +169,22 @@ public class Main extends PApplet{
 		{
 			//if we have no asteroids on the screen
 			if (asteroids.size() <= 0)
-			{
+			{			
 				//create new big asteroids based on the difficulty
 				for (int x = 0; x < difficulty*2; x++)
+				{
+					//select random angle to position the new asteroid at
+					double randomAngle = Math.random()*360;
+					
 					asteroids.add(new Asteroid(this, 
-							new Vector2f((float)Math.random()*screenWidth,
-									(float)Math.random()*screenHeight), 150));	
+							new Vector2f((float)((screenWidth/2) + (Math.cos(Math.toRadians(randomAngle)) * screenWidth)),
+										(float)((screenHeight/2) + (Math.sin(Math.toRadians(randomAngle)) * screenHeight))), 150));	
+				}
 				//increase our difficulty we have cleared the screen
 				difficulty += .2;
 			}
 		}
 		
-		System.out.println(asteroids.size());
 		//Create temp arrays to hold our deleted objects
 		ArrayList discardedAsteroids = new ArrayList();
 		ArrayList discardedBullets = new ArrayList();
@@ -200,7 +206,7 @@ public class Main extends PApplet{
 				Asteroid tempAsteroid = (Asteroid)asteroids.get(y);
 				
 				//if the current bullet intersects the current asteroid
-				if (tempAsteroid.verticies.intersects(new Rectangle((int)temp.bulletx, (int)temp.bullety, 10, 10)))
+				if (tempAsteroid.verticies.intersects(new Rectangle((int)temp.bulletx, (int)temp.bullety, 10, 10)) && !tempAsteroid.destroied)
 				{
 					//Decrease the asteroids health
 					tempAsteroid.health--;
@@ -216,7 +222,7 @@ public class Main extends PApplet{
 					
 					//If the asteroid died of natural death
 					//by bullets add it to the discard array.
-					if (tempAsteroid.health <= 0 && !tempAsteroid.destroied)
+					if (tempAsteroid.health <= 0)
 					{
 						//discardedAsteroids.add(tempAsteroid);		
 						tempAsteroid.destroyObject();
@@ -225,11 +231,11 @@ public class Main extends PApplet{
 						//if the size is > 50 we know its not at its 3rd stage yet
 						if (tempAsteroid.size > 50)
 						{
-							//Create 3 new asteroids in this ones position
+							//Create 2 new asteroids in this ones position
 							//We make it at half the size this will keep up
 							//with our asteroid level. we know stage 1 is 150
 							//stage 2 is 75 stage 3 is 75/2 which is < than 50
-							for (int i = 0; i < 3; i++)
+							for (int i = 0; i < 2; i++)
 							{
 								asteroids.add(new Asteroid(this, new Vector2f(tempAsteroid.position.x, tempAsteroid.position.y), tempAsteroid.size/2));
 							}
@@ -239,6 +245,10 @@ public class Main extends PApplet{
 			}
 		}
 		
+		//if my ship is destroied and I have no particles left
+		//reset my position to the middle of the screen
+		//reset my spwning invincibilty to 10
+		//and tell me the ship isnt destroied and isnt moving yet.
 		if (me.destroied && me.verticieParticles.size() == 0)
 		{
 			me.position = new Vector2f(screenWidth/2, screenHeight/2);
@@ -254,23 +264,26 @@ public class Main extends PApplet{
 			//Then update that asteroid
 			Asteroid tempAsteroid = (Asteroid)asteroids.get(x);
 			tempAsteroid.update(delta);
+			//if we are not dead
 			if (!tempAsteroid.destroied)
 			{
-				//If the asteroid is touching my ship
+				//If the asteroid is touching my ship and im not dead or invincible
 				if (tempAsteroid.verticies.intersects(me.verticies.getBounds2D()) && me.spawningTimer <= 0 && me.verticieParticles.size() == 0)
 				{
 					//Decrease health
 					health -= 25;
+					//set the asteroids health to 0
 					tempAsteroid.health = 0;
+					//destroy our object we hit it
 					me.destroyObject();
 					//if the size is > 50 we know its not at its 3rd stage yet
 					if (tempAsteroid.size > 50)
 					{
-						//Create 3 new asteroids in this ones position
+						//Create 2 new asteroids in this ones position
 						//We make it at half the size this will keep up
 						//with our asteroid level. we know stage 1 is 150
 						//stage 2 is 75 stage 3 is 75/2 which is < than 50
-						for (int i = 0; i < 3; i++)
+						for (int i = 0; i < 2; i++)
 						{
 							asteroids.add(new Asteroid(this, new Vector2f(tempAsteroid.position.x, tempAsteroid.position.y), tempAsteroid.size/2));
 						}
@@ -280,23 +293,20 @@ public class Main extends PApplet{
 			}
 			else if (tempAsteroid.destroied && tempAsteroid.verticieParticles.size() == 0)
 			{
+				//we are dead and have no particles left
+				//so we delete this asteroid now.
 				discardedAsteroids.add(tempAsteroid);
 			}
 			
 		}
+		//delete asteroids and bullets
+		asteroids.removeAll(discardedAsteroids);
+		bullets.removeAll(discardedBullets);
 		
-		asteroids.removeAll(discardedAsteroids);		
-		//loop through our discarded asteroids
-		
-		//remove all bullets
-		for (int x = 0; x < discardedBullets.size(); x++)
-		{
-			bullets.remove(discardedBullets.get(x));
-		}
-		
-		//if health <= 0 then pause the game
+		//if health <= 0  and our ship has been destroied
+		//then pause the game
 		//forcing us into pause/main menu
-		if (health <= 0)
+		if (health <= 0 && me.verticieParticles.size() == 0)
 		{
 			paused = true;
 		}
@@ -311,7 +321,7 @@ public class Main extends PApplet{
 		//For the extra credit however this would change
 		//to be based on the rotation of the current
 		//mouse position.
-		if (!paused && bullets.size() < 3)
+		if (!paused && bullets.size() < 3 && !me.destroied)
 		{
 			//In my version my ship only shoots forward
 			//As thats how I imagined it.
@@ -372,7 +382,7 @@ public class Main extends PApplet{
 		{
 			//if less than 3 bullets and not paused
 			//add new bullet infront of the ship.
-			if (!paused && bullets.size() < 3)
+			if (!paused && bullets.size() < 3 && !me.destroied)
 			{
 				float startx = me.position.x + (float)(Math.cos(Math.toRadians(me.rotation)) * 30);
 				float starty = me.position.y + (float)(Math.sin(Math.toRadians(me.rotation)) * 30);
@@ -418,11 +428,6 @@ public class Main extends PApplet{
 				{
 					//remove any asteroids from previous games
 					asteroids.clear();
-					//create 3 asteroids
-					for (int x = 0; x < 3; x++)
-					{
-						asteroids.add(new Asteroid(this, new Vector2f((float)Math.random()*screenWidth,(float)Math.random()*screenHeight), 150));
-					}
 					//reset score
 					score = 0;
 					visualScore = 0;
@@ -463,7 +468,8 @@ public class Main extends PApplet{
 	
 	public static void main(String[] args) {
 		//init the game
-		PApplet.main(new String[] {"--present", "Main"});		
+		PApplet.main(new String[] {"--present", "asteroids.Main"});		
+		
 	}
 	
 	public void draw()
@@ -488,9 +494,10 @@ public class Main extends PApplet{
 		}
 		else
 		{
-			//Gimmie grey
-			background(204);
+			//Gimmie black
+			background(0);
 		}
+		//set no stroke and then draw our stars.
 		noStroke();
 		for (int x = 0; x < stars.size(); x++)
 		{
@@ -500,8 +507,11 @@ public class Main extends PApplet{
 		stroke(0);
 		
 		
-		//set text to white
-		fill(0);
+		//set text to white/black depending on mode
+		if (!useColor)
+			fill(255);
+		else
+			fill(0);
 		//align text to center of position
 		textAlign(CENTER);
 		
@@ -550,7 +560,6 @@ public class Main extends PApplet{
 		{
 			Asteroid temp = (Asteroid)asteroids.get(x);
 			temp.draw();
-			temp.rotation+=.2;
 		}
 		
 		
@@ -571,11 +580,17 @@ public class Main extends PApplet{
 				fill(255, 0, 0);
 			else
 			{
-				fill(204);
+				noFill();
 			}
 			//draw the current current health ammount across the top
 			//as a percentage of the whole.
 			rect(10, 10, (((float)screenWidth-30)*((float)health/100)), 20);
+			//set text to white/black depending on mode
+			if (!useColor)
+				fill(255);
+			else
+				fill(0);
+			text("Health", 30, 25);
 		}
 		
 		

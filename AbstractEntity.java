@@ -52,18 +52,24 @@ public abstract class AbstractEntity {
 		destroied = false;
 	}
 	
+	//destroies the current polygon by creating particles that mimic
+	//the current outline of our polygon
 	public void destroyObject()
-	{
-		
+	{		
+		//loop throught the points in our object
 		for (int x = 0; x < verticies.npoints-1; x++)
 		{
-			
+			//grab both points and then use the mid-point formula
+			//to find the center of the line
 			Vector2f point1 = new Vector2f(verticies.xpoints[x], verticies.ypoints[x]);
 			Vector2f point2 = new Vector2f(verticies.xpoints[x+1], verticies.ypoints[x+1]);
 			Vector2f center = new Vector2f((point2.x + point1.x)/2, (point2.y + point1.y)/2);
+			//find the triangle sides
 			float xdis = point2.x - point1.x;
 			float ydis = point2.y - point1.y;
-			double angleAradians = Math.atan2(ydis,xdis);			
+			//get the angle of the line
+			double angleAradians = Math.atan2(ydis,xdis);	
+			//get the length of the line
 			double hypot = Math.hypot(point2.x - point1.x, point2.y - point1.y);					
 			double currentRotation;
 			//convert to 360 degrees to make it easier to figure out.
@@ -75,17 +81,26 @@ public abstract class AbstractEntity {
 			{
 				currentRotation = Math.toDegrees(angleAradians);
 			}
-			Particle p = new Particle(parent, center, (float)(hypot/2), (float)currentRotation, (float)(Math.random()*5), 2, (float)(Math.random()*360));
+			//Create a new particle using the information we have found out about the points
+			Particle p = new Particle(parent, center, (float)(hypot/2), (float)currentRotation, (float)(Math.random()*100), 2, (float)(Math.random()*360), (float)(Math.random()*30 + 45));
+			//add it to our particle emitter array
 			verticieParticles.add(p);
 		}
 		
+		//grab the first and last points to 
+		//get the side of the polygon
+		//and then use the mid-point formula
+		//to find the center of the line
 		Vector2f point1 = new Vector2f(verticies.xpoints[verticies.npoints-1], verticies.ypoints[verticies.npoints-1]);
 		Vector2f point2 = new Vector2f(verticies.xpoints[0], verticies.ypoints[0]);
 		Vector2f center = new Vector2f((point2.x + point1.x)/2, (point2.y + point1.y)/2);
+		//find the triangle sides
 		float xdis = point2.x - point1.x;
 		float ydis = point2.y - point1.y;
-		double angleAradians = Math.atan2(ydis,xdis);			
-		double hypot = Math.hypot(xdis, ydis);					
+		//get the angle of the line
+		double angleAradians = Math.atan2(ydis,xdis);	
+		//get the length of the line
+		double hypot = Math.hypot(point2.x - point1.x, point2.y - point1.y);					
 		double currentRotation;
 		//convert to 360 degrees to make it easier to figure out.
 		if (angleAradians < 0)
@@ -96,9 +111,12 @@ public abstract class AbstractEntity {
 		{
 			currentRotation = Math.toDegrees(angleAradians);
 		}
-		Particle p = new Particle(parent, center, (float)(hypot/2), (float)currentRotation, (float)(Math.random()*30), 2, (float)(Math.random()*360));
-		verticieParticles.add(p);	
+		//Create a new particle using the information we have found out about the points
+		Particle p = new Particle(parent, center, (float)(hypot/2), (float)currentRotation, (float)(Math.random()*100), 2, (float)(Math.random()*360), (float)(Math.random()*30 + 45));
+		//add it to our particle emitter array
+		verticieParticles.add(p);
 		
+		//tell us that the ship is now destroied
 		destroied = true;
 	}
 	
@@ -130,9 +148,13 @@ public abstract class AbstractEntity {
 		//based on the current rotation of the object.
 		updatePolygon();
 		
+		//if our ship is destroied
 		if (destroied)
 		{
 			ArrayList discardedParticles = new ArrayList();
+			
+			//loop the particle emitter to update its
+			//particles and delete dead ones.
 			for (int x = 0; x < verticieParticles.size(); x++)
 			{
 				Particle p = (Particle)verticieParticles.get(x);
@@ -140,8 +162,7 @@ public abstract class AbstractEntity {
 				if (p.delete)
 				{
 					discardedParticles.add(p);
-				}
-				
+				}				
 			}
 			verticieParticles.removeAll(discardedParticles);
 		}
@@ -174,8 +195,10 @@ public abstract class AbstractEntity {
 		else
 		{
 			parent.noFill();
+			//make the stroke white
+			parent.stroke(255);
 		}
-		
+		//if were alive draw us
 		if (!destroied)
 		{
 			//Begins drawing our new shape.
@@ -193,6 +216,8 @@ public abstract class AbstractEntity {
 		}
 		else
 		{
+			//if we are not alive then display my particles in my
+			//emitter because thats the outline of our polygon
 			for (int x = 0; x < verticieParticles.size(); x++)
 			{
 				Particle p = (Particle)verticieParticles.get(x);

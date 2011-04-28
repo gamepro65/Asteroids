@@ -23,6 +23,7 @@ public class Asteroid extends AbstractEntity{
 	public Vector2f driftSpeed;	
 	public int size;
 	public int health;
+	private float rotateSpeed;
 	
 	
 	//Default constructor of our asteroid
@@ -33,6 +34,8 @@ public class Asteroid extends AbstractEntity{
 		//Psudeo random number generator. Used for our random
 		//Asteroid creation
 		Random ran = new Random();
+		//Random rotation speed
+		rotateSpeed = (float)((Math.random()*100) - 50);
 		size = aSize;
 		//Minimum number of sides is 5
 		//Triangles don't look like asteroids
@@ -72,6 +75,9 @@ public class Asteroid extends AbstractEntity{
 		//The asteroids move faster.
 		position.x += (float)(driftSpeed.x * Main.difficulty * aDelta);
 		position.y += (float)(driftSpeed.y * Main.difficulty * aDelta);
+		
+		//rotate the asteroid
+		rotation += rotateSpeed * aDelta;
 	}
 		
 	public void draw()
