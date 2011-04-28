@@ -586,6 +586,9 @@ public class Main extends PApplet{
 			text("FPS: " + _fps, screenWidth-200, 10);			
 		}		
 		
+		//Put my name in the game.
+		text("Created by: Chris Drury", 150, screenHeight - 60);
+		
 		//Loop through the asteroids, draw them,
 		//and update their rotation to make them spin.
 		for (int x = 0; x < asteroids.size(); x++)
