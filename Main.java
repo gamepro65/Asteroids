@@ -67,8 +67,8 @@ public class Main extends PApplet{
 		stars = new ArrayList();
 		//Screen Width and Height
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-		screenWidth = (int)(dim.width/2);
-		screenHeight = (int)(dim.height/2);
+		screenWidth = (int)(dim.width);
+		screenHeight = (int)(dim.height);
 		//Psuedo random number generator
 		Random ran = new Random();
 		//make a new random backgroundColor
@@ -79,7 +79,13 @@ public class Main extends PApplet{
 		health = -1;
 		score = 0;
 		visualScore = 0;
-		size(screenWidth, screenHeight);
+		
+		//allows us to resize the frame
+		frame.setResizable(true);
+		size(screenWidth,screenHeight);
+		frame.setSize(screenWidth,screenHeight); 
+		frame.setLocation((dim.width/2 - screenWidth/2), (dim.height/2 - screenHeight/2));	
+		
 		smooth();
 		//set mouse control off by default
 		mouseControl = false;
@@ -367,6 +373,29 @@ public class Main extends PApplet{
 	
 	public void keyPressed()
 	{
+		if (keyCode == 107)
+		{
+			//+ hit so lets increase the screen size by 10
+			screenWidth += 10;
+			screenHeight += 10;
+			Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+			size(screenWidth,screenHeight);
+			frame.setSize(screenWidth,screenHeight); 
+			//keep the frame in the middle of the screen
+			frame.setLocation((dim.width/2 - screenWidth/2), (dim.height/2 - screenHeight/2));
+		}
+		if (keyCode == 109)
+		{
+			//- hit so lets decrease the screen size by 10
+			screenWidth -= 10;
+			screenHeight -= 10;
+			Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+			size(screenWidth,screenHeight);
+			frame.setSize(screenWidth,screenHeight); 
+			//keep the frame in the middle of the screen
+			frame.setLocation((dim.width/2 - screenWidth/2), (dim.height/2 - screenHeight/2));
+		}
+		
 		//keycode 37 = left arrow
 		if (keyCode == 37)
 		{
@@ -525,10 +554,11 @@ public class Main extends PApplet{
 			update();
 			
 			//draw information text including our fps, toggle switces
-			text("Press 'Enter' To Pause", 100, screenHeight-90);
-			text("Press 'T' To Toggle Color Mode", 100, screenHeight-70);
+			text("Press 'Enter' To Pause", 150, screenHeight-90);
+			text("Press 'T' To Toggle Color Mode", 150, screenHeight-70);
 			text("FPS: " + _fps, screenWidth-200, 10);
-			text ("Press 'M' To Toggle Mouse Mode", 100, screenHeight-80);
+			text ("Press 'M' To Toggle Mouse Mode", 150, screenHeight-80);
+			text("+/- Will resize your screen accordingly", 150, screenHeight - 100);
 		}
 		else
 		{
@@ -536,18 +566,20 @@ public class Main extends PApplet{
 			if (health < 0)
 			{				
 				//tell them to hit enter to play and toggles
-				text("Press 'Enter' To Play", 100, screenHeight-90);
-				text("Press 'T' To Toggle Color Mode", 100, screenHeight-70);
-				text ("Press 'M' To Toggle Mouse Mode", 100, screenHeight-80);
+				text("Press 'Enter' To Play", 150, screenHeight-90);
+				text("Press 'T' To Toggle Color Mode", 150, screenHeight-70);
+				text ("Press 'M' To Toggle Mouse Mode", 150, screenHeight-80);
+				text("+/- Will resize your screen accordingly", 150, screenHeight - 100);
 			}
 			else
 			{
 				//Game is just paused so tell them that
 				//Also mention how to resume and toggle switches
 				text("Paused.", screenWidth/2, screenHeight/2);
-				text("Press 'Enter' To Resume", 100, screenHeight-90);
-				text("Press 'T' To Toggle Color Mode", 100, screenHeight-70);
-				text ("Press 'M' To Toggle Mouse Mode", 100, screenHeight-80);
+				text("Press 'Enter' To Resume", 150, screenHeight-90);
+				text("Press 'T' To Toggle Color Mode", 150, screenHeight-70);
+				text ("Press 'M' To Toggle Mouse Mode", 150, screenHeight-80);
+				text("+/- Will resize your screen accordingly", 150, screenHeight - 100);
 		
 			}
 			//Display the current fps.
